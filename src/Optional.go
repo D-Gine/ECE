@@ -1,6 +1,6 @@
-package optional
+package ece
 
-import "golang.org/x/crypto/openpgp/errors"
+import "errors"
 
 var NoneErr = errors.New("value is empty")
 

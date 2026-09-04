@@ -2,8 +2,6 @@ package ece
 
 import "errors"
 
-var NoneErr = errors.New("value is empty")
-
 type Optional[T any] struct {
 	value T
 	exist bool
@@ -19,7 +17,7 @@ func None[T any]() Optional[T] {
 
 func (o *Optional[T]) Get() (T, error) {
 	if !o.exist {
-		return o.value, NoneErr
+		return o.value, errors.New("value is empty")
 	}
 	return o.value, nil
 }

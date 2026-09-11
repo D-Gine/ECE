@@ -6,6 +6,9 @@ import (
 
 func TestComponentRegistration(t *testing.T) {
 	reg := NewRegistry()
+	if reg == nil {
+		t.Error("error: could not create registry")
+	}
 	RegisterComponents[int](reg)
 	integers := GetComponents[int](reg)
 	if integers == nil {

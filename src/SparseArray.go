@@ -5,6 +5,10 @@ type SparseArray[T any] struct {
 	sparse []Optional[uint64]
 }
 
+func NewSparseArray[T any]() *SparseArray[T] {
+	return &SparseArray[T]{}
+}
+
 func (s *SparseArray[T]) Insert(e uint64, c T) {
 	back_id := len(s.dense)
 	s.sparse[e] = Some(uint64(back_id))

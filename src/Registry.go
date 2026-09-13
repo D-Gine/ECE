@@ -34,7 +34,7 @@ func GetComponents[T any](r *Registry) *SparseArray[T] {
 	return s.(*SparseArray[T])
 }
 
-func AddComponent[T any](r *Registry, e uint64, c T) error {
+func AddComponent[T any](r *Registry, e int, c T) error {
 	t := reflect.TypeOf((*T)(nil)).Elem()
 	raw, ok := r.components[t]
 	if !ok {

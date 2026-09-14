@@ -4,8 +4,9 @@ import "reflect"
 
 type EventFunc func(*Registry, any)
 
-type EventsQueue[T any] struct {
-	data T
+type EventsQueue struct {
+	t reflect.Type
+	data any
 }
 
 type Events struct {
@@ -40,10 +41,6 @@ func Fire[T any](r *Registry, data T) {
 }
 
 func AddToQueue[T any](r *Registry, data T) {
-	t := reflect.TypeOf((*T)(nil)).Elem()
-	//	for _, fn := range r.events.list[t] {
-	//		fn(r, data)
-	//	}
 	r.events.queue = append(
 		r.events.queue,
 		EventsQueue{t, data})

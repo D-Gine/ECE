@@ -58,15 +58,14 @@ func TestRemovingComponent(t *testing.T) {
 	}
 }
 
-type TestStruct struct {
-	i int
-	f float32
+type HitEntity struct {
+	e int
 }
 
 func TestEventCreation(t *testing.T) {
 	reg := NewRegistry()
-	Subscribe(reg, func(r *Registry, o TestStruct) {
-		fmt.Printf("Event %d %f\n", o.i, o.f)
+	Subscribe(reg, func(r *Registry, o HitEntity) {
+		fmt.Printf("Just hit '%d'\n", o.e)
 	})
-	AddToQueue(reg, TestStruct{0, 1.2})
+	AddToQueue(reg, HitEntity{0})
 }

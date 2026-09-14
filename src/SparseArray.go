@@ -22,8 +22,8 @@ func NewSparseArray[T any]() *SparseArray[T] {
 
 func (s *SparseArray[T]) Insert(e int, c T) {
 	back_id := len(s.dense)
-	if s.size < e {
-		for s.size < e {
+	if s.size-1 < e {
+		for s.size-1 < e {
 			if s.size == DEFAULT_ARR_SIZE {
 				for i := 0; i < INIT_ARR_SIZE; i++ {
 					s.sparse = append(s.sparse, None[int]())

@@ -1,6 +1,7 @@
 package ece
 
 import (
+	"fmt"
 	"testing"
 )
 
@@ -55,4 +56,17 @@ func TestRemovingComponent(t *testing.T) {
 	if err == nil {
 		t.Error("error: component not removed")
 	}
+}
+
+type TestStruct struct {
+	i int
+	f float32
+}
+
+func TestEventCreation(t *testing.T) {
+	reg := NewRegistry()
+	Subscribe(reg, func(r *Registry, o TestStruct) {
+		fmt.Printf("Event %d %f\n", o.i, o.f)
+	})
+	AddToQueue(reg, TestStruct{0, 1.2})
 }

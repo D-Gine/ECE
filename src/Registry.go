@@ -10,7 +10,9 @@ type Registry struct {
 }
 
 func NewRegistry() *Registry {
-	return &Registry{}
+	reg := &Registry{}
+	reg.components = make(map[reflect.Type]any)
+	return reg
 }
 
 func RegisterComponents[T any](r *Registry) *SparseArray[T] {
@@ -18,9 +20,9 @@ func RegisterComponents[T any](r *Registry) *SparseArray[T] {
 	if s, ok := r.components[t]; ok {
 		return s.(*SparseArray[T])
 	}
-	s := &SparseArray[T]{}
-	r.components[t] = s
-	return s
+	empty := NewSparseArray[T]()
+	r.components[t] = empty
+	return empty
 }
 
 func GetComponents[T any](r *Registry) *SparseArray[T] {
@@ -32,7 +34,7 @@ func GetComponents[T any](r *Registry) *SparseArray[T] {
 	return s.(*SparseArray[T])
 }
 
-func AddComponent[T any](r *Registry, e uint64, c T) error {
+func AddComponent[T any](r *Registry, e int, c T) error {
 	t := reflect.TypeOf((*T)(nil)).Elem()
 	raw, ok := r.components[t]
 	if !ok {

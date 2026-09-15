@@ -1,6 +1,7 @@
 package ece
 
 import (
+	"fmt"
 	"testing"
 )
 
@@ -61,15 +62,17 @@ type HitEntity struct {
 	e int
 }
 
-func onCoucouEventEncore(r *Registry, e *CoucouEvent) {
-	println("Weeee alors on a encore reçu un event coucou", e.text)
-}
 func TestEventCreation(t *testing.T) {
 	reg := NewRegistry()
 
 	subscribe(reg, onCoucouEvent, 0)
-	subscribe(reg, onCoucouEventEncore, 1)
 
 	e := &CoucouEvent{text: "Hello, World!"}
-	e.triggerEvent(reg)
+	e2 := &CoucouEvent{text: "Hello, World! 2"}
+	reg.eventQueue.Enqueue(e)
+	reg.eventQueue.Enqueue(&BreakpointEvent{})
+	reg.eventQueue.Enqueue(e2)
+	reg.eventQueue.Process(reg)
+	fmt.Println("Processed until breakpoint")
+	reg.eventQueue.Process(reg)
 }

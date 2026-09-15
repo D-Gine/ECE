@@ -6,13 +6,14 @@ import (
 )
 
 type Registry struct {
-	components map[reflect.Type]any
-	events     Events
+	components         map[reflect.Type]any
+	events_subscribers map[reflect.Type][]eventSubscriber
 }
 
 func NewRegistry() *Registry {
 	reg := &Registry{}
 	reg.components = make(map[reflect.Type]any)
+	reg.events_subscribers = make(map[reflect.Type][]eventSubscriber)
 	//	reg.events = make(map[reflect.Type][]func(*Registry, any))
 	return reg
 }

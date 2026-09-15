@@ -1,7 +1,6 @@
 package ece
 
 import (
-	"fmt"
 	"testing"
 )
 
@@ -43,7 +42,7 @@ func TestRemovingComponent(t *testing.T) {
 	RegisterComponents[int](reg)
 	integers := GetComponents[int](reg)
 
-	AddComponent[int](reg, test_entity, 5)
+	AddComponent(reg, test_entity, 5)
 	_, err := integers.Get(test_entity)
 	if err != nil {
 		t.Errorf(`error: Get component not working: can't test remover`)
@@ -62,10 +61,15 @@ type HitEntity struct {
 	e int
 }
 
+func onCoucouEventEncore(r *Registry, e *CoucouEvent) {
+	println("Weeee alors on a encore reçu un event coucou", e.text)
+}
 func TestEventCreation(t *testing.T) {
 	reg := NewRegistry()
-	Subscribe(reg, func(r *Registry, o HitEntity) {
-		fmt.Printf("Just hit '%d'\n", o.e)
-	})
-	AddToQueue(reg, HitEntity{0})
+
+	subscribe(reg, onCoucouEvent, 0)
+	subscribe(reg, onCoucouEventEncore, 1)
+
+	e := &CoucouEvent{text: "Hello, World!"}
+	e.triggerEvent(reg)
 }

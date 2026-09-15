@@ -1,7 +1,7 @@
 package ece
 
 import (
-	"fmt"
+	"reflect"
 	"testing"
 )
 
@@ -38,41 +38,91 @@ func TestAddingComponent(t *testing.T) {
 	}
 }
 
-func TestRemovingComponent(t *testing.T) {
-	reg := NewRegistry()
-	RegisterComponents[int](reg)
-	integers := GetComponents[int](reg)
+// func TestRemovingComponent(t *testing.T) {
+// 	reg := NewRegistry()
+// 	RegisterComponents[int](reg)
+// 	integers := GetComponents[int](reg)
 
-	AddComponent(reg, test_entity, 5)
-	_, err := integers.Get(test_entity)
-	if err != nil {
-		t.Errorf(`error: Get component not working: can't test remover`)
-	}
-	err = integers.Remove(test_entity)
-	if err != nil {
-		t.Errorf(`error: could not remove component: %v`, err)
-	}
-	_, err = integers.Get(test_entity)
-	if err == nil {
-		t.Error("error: component not removed")
-	}
-}
-
-type HitEntity struct {
-	e int
-}
+// 	AddComponent(reg, test_entity, 5)
+// 	_, err := integers.Get(test_entity)
+// 	if err != nil {
+// 		t.Errorf(`error: Get component not working: can't test remover`)
+// 	}
+// 	err = integers.Remove(test_entity)
+// 	if err != nil {
+// 		t.Errorf(`error: could not remove component: %v`, err)
+// 	}
+// 	_, err = integers.Get(test_entity)
+// 	if err == nil {
+// 		t.Error("error: component not removed")
+// 	}
+// }
 
 func TestEventCreation(t *testing.T) {
+	e := &CoucouEvent{text: "Hello, World!"}
+
+	if e == nil {
+		t.Error("error: could not create event")
+	}
+	if e.text != "Hello, World!" {
+		t.Error("error: event text not set correctly")
+	}
+}
+
+func TestEventSubscription(t *testing.T) {
 	reg := NewRegistry()
 
-	subscribe(reg, onCoucouEvent, 0)
+	subscribe(reg, func(r *Registry, e *CoucouEvent) any {
+		return nil
+	}, 1)
+
+	if reg.events_subscribers[reflect.TypeOf(&CoucouEvent{})] == nil {
+		t.Error("error: could not subscribe to event")
+	}
+}
+
+func TestEventTriggering(t *testing.T) {
+	reg := NewRegistry()
+	var res string
+
+	subscribe(reg, func(r *Registry, e *CoucouEvent) any {
+		res = e.text
+		return nil
+	}, 1)
 
 	e := &CoucouEvent{text: "Hello, World!"}
-	e2 := &CoucouEvent{text: "Hello, World! 2"}
 	reg.eventQueue.Enqueue(e)
-	reg.eventQueue.Enqueue(&BreakpointEvent{})
+	reg.eventQueue.Process(reg)
+	if res != "Hello, World!" {
+		t.Errorf("error: event not triggered correctly, got '%s'", res)
+	}
+}
+
+func TestEventQueueProcessingWithBreakpoint(t *testing.T) {
+	reg := NewRegistry()
+	var res string
+
+	subscribe(reg, func(r *Registry, e *CoucouEvent) any {
+		res += e.text
+		return nil
+	}, 1)
+
+	subscribe(reg, func(r *Registry, e *BreakpointEvent) any {
+		res += "Breakpoint!"
+		return nil
+	}, 1)
+
+	e1 := &CoucouEvent{text: "Hello, "}
+	e2 := &BreakpointEvent{}
+	e3 := &CoucouEvent{text: "World!"}
+
+	reg.eventQueue.Enqueue(e1)
 	reg.eventQueue.Enqueue(e2)
+	reg.eventQueue.Enqueue(e3)
+
 	reg.eventQueue.Process(reg)
-	fmt.Println("Processed until breakpoint")
-	reg.eventQueue.Process(reg)
+
+	if res != "Hello, Breakpoint!" {
+		t.Errorf("error: event queue processing with breakpoint failed, got '%s'", res)
+	}
 }

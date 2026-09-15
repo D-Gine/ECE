@@ -10,7 +10,7 @@ type Event interface {
 }
 
 type eventSubscriber struct {
-	callback func(*Registry, Event)
+	callback func(*Registry, Event) any
 	priority int
 }
 
@@ -27,10 +27,10 @@ func (e *BreakpointEvent) triggerEvent(r *Registry) {
 	}
 }
 
-func subscribe[T Event](r *Registry, callback func(*Registry, T), priority int) {
+func subscribe[T Event](r *Registry, callback func(*Registry, T) any, priority int) {
 	t := reflect.TypeOf((*T)(nil)).Elem()
-	wrapped := func(r *Registry, event Event) {
-		callback(r, event.(T))
+	wrapped := func(r *Registry, event Event) any {
+		return callback(r, event.(T))
 	}
 	r.events_subscribers[t] = append(r.events_subscribers[t], eventSubscriber{
 		callback: wrapped,
@@ -56,6 +56,7 @@ func (e *CoucouEvent) triggerEvent(r *Registry) {
 	}
 }
 
-func onCoucouEvent(r *Registry, e *CoucouEvent) {
+func onCoucouEvent(r *Registry, e *CoucouEvent) any {
 	println("CoucouEvent received with text:", e.text)
+	return nil
 }

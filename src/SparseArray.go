@@ -62,9 +62,12 @@ func (s *SparseArray[T]) Remove(e int) error {
 		return errors.New("error: entity does not exist")
 	}
 	last := len(s.dense) - 1
-	s.sparse[e] = None[int]()
+	if last == 0 {
+		s.sparse[e] = None[int]()
+		s.dense = s.dense[:len(s.dense)-1]
+		return nil
+	}
 	s.sparse[s.dense_to_sparse[last]] = Some(to_del)
 	s.dense[to_del], s.dense[last] = s.dense[last], s.dense[to_del]
-	s.dense = s.dense[:len(s.dense)-1]
 	return nil
 }

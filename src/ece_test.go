@@ -12,12 +12,12 @@ func TestComponentRegistration(t *testing.T) {
 	if reg == nil {
 		t.Error("error: could not create registry")
 	}
-	RegisterComponents[int](reg)
-	integers := GetComponents[int](reg)
+	reg.RegisterComponents[int]()
+	integers := reg.GetComponents[int]()
 	if integers == nil {
 		t.Error("error: could not get registred component type 'int'")
 	}
-	nothing := GetComponents[string](reg)
+	nothing := reg.GetComponents[string]()
 	if nothing != nil {
 		t.Error("error: huh ?")
 	}
@@ -25,10 +25,10 @@ func TestComponentRegistration(t *testing.T) {
 
 func TestAddingComponent(t *testing.T) {
 	reg := NewRegistry()
-	RegisterComponents[int](reg)
-	integers := GetComponents[int](reg)
+	reg.RegisterComponents[int]()
+	integers := reg.GetComponents[int]()
 
-	AddComponent[int](reg, test_entity, 5)
+	reg.AddComponent[int](test_entity, 5)
 	val, err := integers.Get(test_entity)
 	if err != nil {
 		t.Errorf(`error: trying to get component from entity: %v`, err)
@@ -40,8 +40,8 @@ func TestAddingComponent(t *testing.T) {
 
 // func TestRemovingComponent(t *testing.T) {
 // 	reg := NewRegistry()
-// 	RegisterComponents[int](reg)
-// 	integers := GetComponents[int](reg)
+// 	RegisterComponents[int]()
+// 	integers := reg.GetComponents[int]()
 
 // 	AddComponent(reg, test_entity, 5)
 // 	_, err := integers.Get(test_entity)

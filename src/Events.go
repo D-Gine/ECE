@@ -14,7 +14,7 @@ type eventSubscriber struct {
 
 type BreakpointEvent struct{}
 
-func subscribe[T Event](r *Registry, callback func(*Registry, T) any, priority int) {
+func (r *Registry) SubscribeToEvent[T Event](callback func(*Registry, T) any, priority int) {
 	t := reflect.TypeFor[T]()
 	wrapped := func(r *Registry, event Event) any {
 		return callback(r, event.(T))
@@ -30,9 +30,4 @@ func subscribe[T Event](r *Registry, callback func(*Registry, T) any, priority i
 
 type CoucouEvent struct {
 	text string
-}
-
-func onCoucouEvent(r *Registry, e *CoucouEvent) any {
-	println("CoucouEvent received with text:", e.text)
-	return nil
 }

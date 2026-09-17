@@ -61,7 +61,7 @@ func TestRemovingComponent(t *testing.T) {
 func TestEventSubscription(t *testing.T) {
 	reg := NewRegistry()
 
-	subscribe(reg, func(r *Registry, e *CoucouEvent) any {
+	reg.SubscribeToEvent(func(r *Registry, e *CoucouEvent) any {
 		return nil
 	}, 1)
 
@@ -74,7 +74,7 @@ func TestEventTriggering(t *testing.T) {
 	reg := NewRegistry()
 	var res string
 
-	subscribe(reg, func(r *Registry, e *CoucouEvent) any {
+	reg.SubscribeToEvent(func(r *Registry, e *CoucouEvent) any {
 		res = e.text
 		return nil
 	}, 1)
@@ -91,12 +91,12 @@ func TestEventQueueProcessingWithBreakpoint(t *testing.T) {
 	reg := NewRegistry()
 	var res string
 
-	subscribe(reg, func(r *Registry, e *CoucouEvent) any {
+	reg.SubscribeToEvent(func(r *Registry, e *CoucouEvent) any {
 		res += e.text
 		return nil
 	}, 1)
 
-	subscribe(reg, func(r *Registry, e *BreakpointEvent) any {
+	reg.SubscribeToEvent(func(r *Registry, e *BreakpointEvent) any {
 		res += "Breakpoint!"
 		return nil
 	}, 1)

@@ -35,7 +35,7 @@ func (eq *EventQueue) ProcessManyEvents(r *Registry, n int) {
 	for i := 0; i < n && !eq.IsEmpty(); i++ {
 		event := eq.Dequeue()
 		if event != nil {
-			event.triggerEvent(r)
+			r.EmitEvent(event)
 		}
 		if _, ok := event.(*BreakpointEvent); ok {
 			i--
@@ -47,7 +47,7 @@ func (eq *EventQueue) ProcessAllEvents(r *Registry) {
 	for !eq.IsEmpty() {
 		event := eq.Dequeue()
 		if event != nil {
-			event.triggerEvent(r)
+			r.EmitEvent(event)
 		}
 	}
 }
@@ -56,7 +56,7 @@ func (eq *EventQueue) Process(r *Registry) {
 	for !eq.IsEmpty() {
 		event := eq.Dequeue()
 		if event != nil {
-			event.triggerEvent(r)
+			r.EmitEvent(event)
 			if _, ok := event.(*BreakpointEvent); ok {
 				break
 			}

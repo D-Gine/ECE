@@ -52,3 +52,30 @@ func (r *Registry) AddComponent[T any](e int, c T) error {
 	s.Insert(e, c)
 	return nil
 }
+
+func (r *Registry) EmitEvent(event Event) {
+	t := reflect.TypeOf(event)
+	subscribers, ok := r.events_subscribers[t]
+	if !ok {
+		return
+	}
+	for _, subscriber := range subscribers {
+		subscriber.callback(r, event)
+	}
+}
+
+func (r *Registry) EnqueueEvent(event Event) {
+	r.eventQueue.Enqueue(event)
+}
+
+func (r *Registry) ProcessManyEvents(n int) {
+	r.eventQueue.ProcessManyEvents(r, n)
+}
+
+func (r *Registry) ProcessAllEvents() {
+	r.eventQueue.ProcessAllEvents(r)
+}
+
+func (r *Registry) ProcessEvents() {
+	r.eventQueue.Process(r)
+}

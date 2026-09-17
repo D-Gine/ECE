@@ -28,7 +28,7 @@ func TestAddingComponent(t *testing.T) {
 	reg.RegisterComponents[int]()
 	integers := reg.GetComponents[int]()
 
-	reg.AddComponent[int](test_entity, 5)
+	reg.AddComponent(test_entity, 5)
 	val, err := integers.Get(test_entity)
 	if err != nil {
 		t.Errorf(`error: trying to get component from entity: %v`, err)
@@ -38,34 +38,23 @@ func TestAddingComponent(t *testing.T) {
 	}
 }
 
-// func TestRemovingComponent(t *testing.T) {
-// 	reg := NewRegistry()
-// 	RegisterComponents[int]()
-// 	integers := reg.GetComponents[int]()
+func TestRemovingComponent(t *testing.T) {
+	reg := NewRegistry()
+	reg.RegisterComponents[int]()
+	integers := reg.GetComponents[int]()
 
-// 	AddComponent(reg, test_entity, 5)
-// 	_, err := integers.Get(test_entity)
-// 	if err != nil {
-// 		t.Errorf(`error: Get component not working: can't test remover`)
-// 	}
-// 	err = integers.Remove(test_entity)
-// 	if err != nil {
-// 		t.Errorf(`error: could not remove component: %v`, err)
-// 	}
-// 	_, err = integers.Get(test_entity)
-// 	if err == nil {
-// 		t.Error("error: component not removed")
-// 	}
-// }
-
-func TestEventCreation(t *testing.T) {
-	e := &CoucouEvent{text: "Hello, World!"}
-
-	if e == nil {
-		t.Error("error: could not create event")
+	reg.AddComponent(test_entity, 5)
+	_, err := integers.Get(test_entity)
+	if err != nil {
+		t.Errorf(`error: Get component not working: can't test remover`)
 	}
-	if e.text != "Hello, World!" {
-		t.Error("error: event text not set correctly")
+	err = integers.Remove(test_entity)
+	if err != nil {
+		t.Errorf(`error: could not remove component: %v`, err)
+	}
+	_, err = integers.Get(test_entity)
+	if err == nil {
+		t.Error("error: component not removed")
 	}
 }
 

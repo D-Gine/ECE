@@ -5,9 +5,7 @@ import (
 	"sort"
 )
 
-type Event interface {
-	triggerEvent(*Registry)
-}
+type Event interface{}
 
 type eventSubscriber struct {
 	callback func(*Registry, Event) any
@@ -16,19 +14,8 @@ type eventSubscriber struct {
 
 type BreakpointEvent struct{}
 
-func (e *BreakpointEvent) triggerEvent(r *Registry) {
-	t := reflect.TypeOf(e)
-	subscribers, ok := r.events_subscribers[t]
-	if !ok {
-		return
-	}
-	for _, subscriber := range subscribers {
-		subscriber.callback(r, e)
-	}
-}
-
 func subscribe[T Event](r *Registry, callback func(*Registry, T) any, priority int) {
-	t := reflect.TypeOf((*T)(nil)).Elem()
+	t := reflect.TypeFor[T]()
 	wrapped := func(r *Registry, event Event) any {
 		return callback(r, event.(T))
 	}
@@ -43,17 +30,6 @@ func subscribe[T Event](r *Registry, callback func(*Registry, T) any, priority i
 
 type CoucouEvent struct {
 	text string
-}
-
-func (e *CoucouEvent) triggerEvent(r *Registry) {
-	t := reflect.TypeOf(e)
-	subscribers, ok := r.events_subscribers[t]
-	if !ok {
-		return
-	}
-	for _, subscriber := range subscribers {
-		subscriber.callback(r, e)
-	}
 }
 
 func onCoucouEvent(r *Registry, e *CoucouEvent) any {

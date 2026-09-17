@@ -38,25 +38,25 @@ func TestAddingComponent(t *testing.T) {
 	}
 }
 
-// func TestRemovingComponent(t *testing.T) {
-// 	reg := NewRegistry()
-// 	RegisterComponents[int](reg)
-// 	integers := GetComponents[int](reg)
+func TestRemovingComponent(t *testing.T) {
+	reg := NewRegistry()
+	RegisterComponents[int](reg)
+	integers := GetComponents[int](reg)
 
-// 	AddComponent(reg, test_entity, 5)
-// 	_, err := integers.Get(test_entity)
-// 	if err != nil {
-// 		t.Errorf(`error: Get component not working: can't test remover`)
-// 	}
-// 	err = integers.Remove(test_entity)
-// 	if err != nil {
-// 		t.Errorf(`error: could not remove component: %v`, err)
-// 	}
-// 	_, err = integers.Get(test_entity)
-// 	if err == nil {
-// 		t.Error("error: component not removed")
-// 	}
-// }
+	AddComponent(reg, test_entity, 5)
+	_, err := integers.Get(test_entity)
+	if err != nil {
+		t.Errorf(`error: Get component not working: can't test remover`)
+	}
+	err = integers.Remove(test_entity)
+	if err != nil {
+		t.Errorf(`error: could not remove component: %v`, err)
+	}
+	_, err = integers.Get(test_entity)
+	if err == nil {
+		t.Error("error: component not removed")
+	}
+}
 
 func TestEventCreation(t *testing.T) {
 	e := &CoucouEvent{text: "Hello, World!"}
@@ -91,8 +91,8 @@ func TestEventTriggering(t *testing.T) {
 	}, 1)
 
 	e := &CoucouEvent{text: "Hello, World!"}
-	reg.eventQueue.Enqueue(e)
-	reg.eventQueue.Process(reg)
+	reg.EnqueueEvent(e)
+	reg.ProcessEvents()
 	if res != "Hello, World!" {
 		t.Errorf("error: event not triggered correctly, got '%s'", res)
 	}
@@ -116,11 +116,11 @@ func TestEventQueueProcessingWithBreakpoint(t *testing.T) {
 	e2 := &BreakpointEvent{}
 	e3 := &CoucouEvent{text: "World!"}
 
-	reg.eventQueue.Enqueue(e1)
-	reg.eventQueue.Enqueue(e2)
-	reg.eventQueue.Enqueue(e3)
+	reg.EnqueueEvent(e1)
+	reg.EnqueueEvent(e2)
+	reg.EnqueueEvent(e3)
 
-	reg.eventQueue.Process(reg)
+	reg.ProcessEvents()
 
 	if res != "Hello, Breakpoint!" {
 		t.Errorf("error: event queue processing with breakpoint failed, got '%s'", res)

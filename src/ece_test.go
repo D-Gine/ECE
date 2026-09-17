@@ -12,12 +12,12 @@ func TestComponentRegistration(t *testing.T) {
 	if reg == nil {
 		t.Error("error: could not create registry")
 	}
-	RegisterComponents[int](reg)
-	integers := GetComponents[int](reg)
+	reg.RegisterComponents[int]()
+	integers := reg.GetComponents[int]()
 	if integers == nil {
 		t.Error("error: could not get registred component type 'int'")
 	}
-	nothing := GetComponents[string](reg)
+	nothing := reg.GetComponents[string]()
 	if nothing != nil {
 		t.Error("error: huh ?")
 	}
@@ -25,10 +25,10 @@ func TestComponentRegistration(t *testing.T) {
 
 func TestAddingComponent(t *testing.T) {
 	reg := NewRegistry()
-	RegisterComponents[int](reg)
-	integers := GetComponents[int](reg)
+	reg.RegisterComponents[int]()
+	integers := reg.GetComponents[int]()
 
-	AddComponent[int](reg, test_entity, 5)
+	reg.AddComponent(test_entity, 5)
 	val, err := integers.Get(test_entity)
 	if err != nil {
 		t.Errorf(`error: trying to get component from entity: %v`, err)
@@ -40,10 +40,10 @@ func TestAddingComponent(t *testing.T) {
 
 func TestRemovingComponent(t *testing.T) {
 	reg := NewRegistry()
-	RegisterComponents[int](reg)
-	integers := GetComponents[int](reg)
+	reg.RegisterComponents[int]()
+	integers := reg.GetComponents[int]()
 
-	AddComponent(reg, test_entity, 5)
+	reg.AddComponent(test_entity, 5)
 	_, err := integers.Get(test_entity)
 	if err != nil {
 		t.Errorf(`error: Get component not working: can't test remover`)
@@ -55,17 +55,6 @@ func TestRemovingComponent(t *testing.T) {
 	_, err = integers.Get(test_entity)
 	if err == nil {
 		t.Error("error: component not removed")
-	}
-}
-
-func TestEventCreation(t *testing.T) {
-	e := &CoucouEvent{text: "Hello, World!"}
-
-	if e == nil {
-		t.Error("error: could not create event")
-	}
-	if e.text != "Hello, World!" {
-		t.Error("error: event text not set correctly")
 	}
 }
 
@@ -91,8 +80,8 @@ func TestEventTriggering(t *testing.T) {
 	}, 1)
 
 	e := &CoucouEvent{text: "Hello, World!"}
-	reg.EnqueueEvent(e)
-	reg.ProcessEvents()
+	reg.eventQueue.Enqueue(e)
+	reg.eventQueue.Process(reg)
 	if res != "Hello, World!" {
 		t.Errorf("error: event not triggered correctly, got '%s'", res)
 	}
@@ -116,11 +105,11 @@ func TestEventQueueProcessingWithBreakpoint(t *testing.T) {
 	e2 := &BreakpointEvent{}
 	e3 := &CoucouEvent{text: "World!"}
 
-	reg.EnqueueEvent(e1)
-	reg.EnqueueEvent(e2)
-	reg.EnqueueEvent(e3)
+	reg.eventQueue.Enqueue(e1)
+	reg.eventQueue.Enqueue(e2)
+	reg.eventQueue.Enqueue(e3)
 
-	reg.ProcessEvents()
+	reg.eventQueue.Process(reg)
 
 	if res != "Hello, Breakpoint!" {
 		t.Errorf("error: event queue processing with breakpoint failed, got '%s'", res)

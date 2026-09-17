@@ -20,7 +20,7 @@ func NewRegistry() *Registry {
 	return reg
 }
 
-func RegisterComponents[T any](r *Registry) *SparseArray[T] {
+func (r *Registry) RegisterComponents[T any]() *SparseArray[T] {
 	t := reflect.TypeOf((*T)(nil)).Elem()
 	if s, ok := r.components[t]; ok {
 		return s.(*SparseArray[T])
@@ -30,7 +30,7 @@ func RegisterComponents[T any](r *Registry) *SparseArray[T] {
 	return empty
 }
 
-func GetComponents[T any](r *Registry) *SparseArray[T] {
+func (r *Registry) GetComponents[T any]() *SparseArray[T] {
 	t := reflect.TypeOf((*T)(nil)).Elem()
 	s, ok := r.components[t]
 	if !ok {
@@ -39,7 +39,7 @@ func GetComponents[T any](r *Registry) *SparseArray[T] {
 	return s.(*SparseArray[T])
 }
 
-func AddComponent[T any](r *Registry, e int, c T) error {
+func (r *Registry) AddComponent[T any](e int, c T) error {
 	t := reflect.TypeOf((*T)(nil)).Elem()
 	raw, ok := r.components[t]
 	if !ok {

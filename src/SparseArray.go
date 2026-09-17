@@ -54,20 +54,25 @@ func (s *SparseArray[T]) Get(e int) (T, error) {
 }
 
 func (s *SparseArray[T]) Remove(e int) error {
+	if e < 0 || e >= len(s.sparse) {
+		return nil
+	}
 	to_del, err := s.sparse[e].Get()
 	if err != nil {
 		return nil
 	}
-	if len(s.dense) < to_del {
+	if to_del < 0 || to_del >= len(s.dense) {
 		return errors.New("error: entity does not exist")
 	}
 	last := len(s.dense) - 1
-	if last == 0 {
-		s.sparse[e] = None[int]()
-		s.dense = s.dense[:len(s.dense)-1]
-		return nil
+	s.sparse[e] = None[int]()
+	if to_del != last {
+		movedEntity := s.dense_to_sparse[last]
+		s.dense[to_del] = s.dense[last]
+		s.dense_to_sparse[to_del] = movedEntity
+		s.sparse[movedEntity] = Some(to_del)
 	}
-	s.sparse[s.dense_to_sparse[last]] = Some(to_del)
-	s.dense[to_del], s.dense[last] = s.dense[last], s.dense[to_del]
+	s.dense = s.dense[:last]
+	s.dense_to_sparse = s.dense_to_sparse[:last]
 	return nil
 }

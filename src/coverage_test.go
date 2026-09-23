@@ -278,3 +278,16 @@ func TestRegistryComponentsAndErrors(t *testing.T) {
 		t.Fatal("AddComponent() returned nil for an incompatible stored array")
 	}
 }
+
+func TestGetComponentsReturnsCorrectType(t *testing.T) {
+	reg := NewRegistry()
+	reg.RegisterComponents[coverageComponent]()
+	reg.RegisterComponents[secondCoverageComponent]()
+
+	if got := reg.GetComponents[coverageComponent](); got == nil {
+		t.Fatal("GetComponents() returned nil for a registered type")
+	}
+	if got := reg.GetComponents[secondCoverageComponent](); got == nil {
+		t.Fatal("GetComponents() returned nil for a registered type")
+	}
+}

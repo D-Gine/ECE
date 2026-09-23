@@ -22,8 +22,8 @@ func NewSparseArray[T any]() *SparseArray[T] {
 
 func (s *SparseArray[T]) Insert(e int, c T) {
 	back_id := len(s.dense)
-	if s.size < e {
-		for s.size < e {
+	if s.size-1 < e {
+		for s.size-1 < e {
 			if s.size == DEFAULT_ARR_SIZE {
 				for i := 0; i < INIT_ARR_SIZE; i++ {
 					s.sparse = append(s.sparse, None[int]())
@@ -54,20 +54,25 @@ func (s *SparseArray[T]) Get(e int) (T, error) {
 }
 
 func (s *SparseArray[T]) Remove(e int) error {
+	if e < 0 || e >= len(s.sparse) {
+		return nil
+	}
 	to_del, err := s.sparse[e].Get()
 	if err != nil {
 		return nil
 	}
-	if len(s.dense) < to_del {
+	if to_del < 0 || to_del >= len(s.dense) {
 		return errors.New("error: entity does not exist")
 	}
-	last_e := s.dense_to_sparse[len(s.dense)-1]
-	last, err := s.sparse[last_e].Get()
-	if err != nil {
-		return errors.New("error: could not get last entity")
-	}
+	last := len(s.dense) - 1
 	s.sparse[e] = None[int]()
-	s.dense[to_del], s.dense[last] = s.dense[last], s.dense[to_del]
-	s.dense = s.dense[:len(s.dense)-1]
+	if to_del != last {
+		movedEntity := s.dense_to_sparse[last]
+		s.dense[to_del] = s.dense[last]
+		s.dense_to_sparse[to_del] = movedEntity
+		s.sparse[movedEntity] = Some(to_del)
+	}
+	s.dense = s.dense[:last]
+	s.dense_to_sparse = s.dense_to_sparse[:last]
 	return nil
 }

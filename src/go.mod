@@ -1,3 +1,3 @@
 module github.com/D-Gine/ECE
 
-go 1.24.10
+go 1.27.1

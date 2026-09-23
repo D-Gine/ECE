@@ -6,16 +6,20 @@ import (
 )
 
 type Registry struct {
-	components map[reflect.Type]any
+	components         map[reflect.Type]any
+	events_subscribers map[reflect.Type][]eventSubscriber
+	eventQueue         *EventQueue
 }
 
 func NewRegistry() *Registry {
 	reg := &Registry{}
 	reg.components = make(map[reflect.Type]any)
+	reg.events_subscribers = make(map[reflect.Type][]eventSubscriber)
+	reg.eventQueue = NewEventQueue()
 	return reg
 }
 
-func RegisterComponents[T any](r *Registry) *SparseArray[T] {
+func (r *Registry) RegisterComponents[T any]() *SparseArray[T] {
 	t := reflect.TypeOf((*T)(nil)).Elem()
 	if s, ok := r.components[t]; ok {
 		return s.(*SparseArray[T])
@@ -25,7 +29,7 @@ func RegisterComponents[T any](r *Registry) *SparseArray[T] {
 	return empty
 }
 
-func GetComponents[T any](r *Registry) *SparseArray[T] {
+func (r *Registry) GetComponents[T any]() *SparseArray[T] {
 	t := reflect.TypeOf((*T)(nil)).Elem()
 	s, ok := r.components[t]
 	if !ok {
@@ -34,7 +38,7 @@ func GetComponents[T any](r *Registry) *SparseArray[T] {
 	return s.(*SparseArray[T])
 }
 
-func AddComponent[T any](r *Registry, e int, c T) error {
+func (r *Registry) AddComponent[T any](e int, c T) error {
 	t := reflect.TypeOf((*T)(nil)).Elem()
 	raw, ok := r.components[t]
 	if !ok {
@@ -46,4 +50,31 @@ func AddComponent[T any](r *Registry, e int, c T) error {
 	}
 	s.Insert(e, c)
 	return nil
+}
+
+func (r *Registry) EmitEvent(event Event) {
+	t := reflect.TypeOf(event)
+	subscribers, ok := r.events_subscribers[t]
+	if !ok {
+		return
+	}
+	for _, subscriber := range subscribers {
+		subscriber.callback(r, event)
+	}
+}
+
+func (r *Registry) EnqueueEvent(event Event) {
+	r.eventQueue.Enqueue(event)
+}
+
+func (r *Registry) ProcessManyEvents(n int) {
+	r.eventQueue.ProcessManyEvents(r, n)
+}
+
+func (r *Registry) ProcessAllEvents() {
+	r.eventQueue.ProcessAllEvents(r)
+}
+
+func (r *Registry) ProcessEvents() {
+	r.eventQueue.Process(r)
 }

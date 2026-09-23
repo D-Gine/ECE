@@ -16,7 +16,6 @@ func NewRegistry() *Registry {
 	reg.components = make(map[reflect.Type]any)
 	reg.events_subscribers = make(map[reflect.Type][]eventSubscriber)
 	reg.eventQueue = NewEventQueue()
-	//	reg.events = make(map[reflect.Type][]func(*Registry, any))
 	return reg
 }
 

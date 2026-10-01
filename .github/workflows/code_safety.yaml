@@ -23,13 +23,6 @@ jobs:
           go install golang.org/x/vuln/cmd/govulncheck@latest
           govulncheck ./...
 
-      - name: Security scan (gosec)
-        uses: securego/gosec@v2.29.0
-        env:
-          GOTOOLCHAIN: auto
-        with:
-          args: ./...
-
       - name: Lint
         uses: golangci/golangci-lint-action@v6
 

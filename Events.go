@@ -27,7 +27,3 @@ func (r *Registry) SubscribeToEvent[T Event](callback func(*Registry, T) any, pr
 		return r.events_subscribers[t][i].priority < r.events_subscribers[t][j].priority
 	})
 }
-
-type CoucouEvent struct {
-	text string
-}

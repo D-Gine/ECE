@@ -1,26 +1,41 @@
 package ece
 
+type Pair[T string, U any] struct {
+	first  T
+	second U
+}
+
 type EventQueue struct {
-	events []Event
+	events []Pair[string, Event]
 }
 
 func NewEventQueue() *EventQueue {
 	return &EventQueue{
-		events: make([]Event, 0),
+		events: make([]Pair[string, Event], 0),
 	}
 }
 
 func (eq *EventQueue) Enqueue(event Event) {
-	eq.events = append(eq.events, event)
+	eq.EnqueueByName(eventName(event), event)
 }
 
-func (eq *EventQueue) Dequeue() Event {
+func (eq *EventQueue) EnqueueByName(name string, event Event) {
+	eq.events = append(eq.events, Pair[string, Event]{name, event})
+}
+
+func (eq *EventQueue) Dequeue() Pair[string, Event] {
 	if len(eq.events) == 0 {
-		return nil
+		return Pair[string, Event]{}
 	}
 	event := eq.events[0]
 	eq.events = eq.events[1:]
 	return event
+}
+
+func (eq *EventQueue) emit(r *Registry, e Pair[string, Event]) {
+	if e.second != nil {
+		r.EmitEventByName(e.first, e.second)
+	}
 }
 
 func (eq *EventQueue) IsEmpty() bool {
@@ -28,16 +43,14 @@ func (eq *EventQueue) IsEmpty() bool {
 }
 
 func (eq *EventQueue) Clear() {
-	eq.events = make([]Event, 0)
+	eq.events = make([]Pair[string, Event], 0)
 }
 
 func (eq *EventQueue) ProcessManyEvents(r *Registry, n int) {
 	for i := 0; i < n && !eq.IsEmpty(); i++ {
 		event := eq.Dequeue()
-		if event != nil {
-			r.EmitEvent(event)
-		}
-		if _, ok := event.(*BreakpointEvent); ok {
+		eq.emit(r, event)
+		if _, ok := event.second.(*BreakpointEvent); ok {
 			i--
 		}
 	}
@@ -45,21 +58,16 @@ func (eq *EventQueue) ProcessManyEvents(r *Registry, n int) {
 
 func (eq *EventQueue) ProcessAllEvents(r *Registry) {
 	for !eq.IsEmpty() {
-		event := eq.Dequeue()
-		if event != nil {
-			r.EmitEvent(event)
-		}
+		eq.emit(r, eq.Dequeue())
 	}
 }
 
 func (eq *EventQueue) Process(r *Registry) {
 	for !eq.IsEmpty() {
-		event := eq.Dequeue()
-		if event != nil {
-			r.EmitEvent(event)
-			if _, ok := event.(*BreakpointEvent); ok {
-				break
-			}
+		e := eq.Dequeue()
+		eq.emit(r, e)
+		if _, ok := e.second.(*BreakpointEvent); ok {
+			break
 		}
 	}
 }

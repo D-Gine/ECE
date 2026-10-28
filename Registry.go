@@ -6,32 +6,42 @@ import (
 )
 
 type Registry struct {
-	components         map[reflect.Type]any
-	events_subscribers map[reflect.Type][]eventSubscriber
+	components         map[string]any
+	events_subscribers map[string][]eventSubscriber
 	eventQueue         *EventQueue
 }
 
 func NewRegistry() *Registry {
 	reg := &Registry{}
-	reg.components = make(map[reflect.Type]any)
-	reg.events_subscribers = make(map[reflect.Type][]eventSubscriber)
+	reg.components = make(map[string]any)
+	reg.events_subscribers = make(map[string][]eventSubscriber)
 	reg.eventQueue = NewEventQueue()
 	return reg
 }
 
-func (r *Registry) RegisterComponents[T any]() *SparseArray[T] {
-	t := reflect.TypeOf((*T)(nil)).Elem()
-	if s, ok := r.components[t]; ok {
+func typeName[T any]() string {
+	return reflect.TypeOf((*T)(nil)).Elem().String()
+}
+
+func (r *Registry) RegisterComponent[T any]() *SparseArray[T] {
+	return r.RegisterComponentByName[T](typeName[T]())
+}
+
+func (r *Registry) RegisterComponentByName[T any](name string) *SparseArray[T] {
+	if s, ok := r.components[name]; ok {
 		return s.(*SparseArray[T])
 	}
 	empty := NewSparseArray[T]()
-	r.components[t] = empty
+	r.components[name] = empty
 	return empty
 }
 
 func (r *Registry) GetComponents[T any]() *SparseArray[T] {
-	t := reflect.TypeOf((*T)(nil)).Elem()
-	s, ok := r.components[t]
+	return r.GetComponentsByName[T](typeName[T]())
+}
+
+func (r *Registry) GetComponentsByName[T any](name string) *SparseArray[T] {
+	s, ok := r.components[name]
 	if !ok {
 		return nil
 	}
@@ -39,8 +49,11 @@ func (r *Registry) GetComponents[T any]() *SparseArray[T] {
 }
 
 func (r *Registry) AddComponent[T any](e int, c T) error {
-	t := reflect.TypeOf((*T)(nil)).Elem()
-	raw, ok := r.components[t]
+	return r.AddComponentByName(e, typeName[T](), c)
+}
+
+func (r *Registry) AddComponentByName[T any](e int, name string, c T) error {
+	raw, ok := r.components[name]
 	if !ok {
 		return errors.New("not existing type in registry")
 	}
@@ -53,12 +66,11 @@ func (r *Registry) AddComponent[T any](e int, c T) error {
 }
 
 func (r *Registry) EmitEvent(event Event) {
-	t := reflect.TypeOf(event)
-	subscribers, ok := r.events_subscribers[t]
-	if !ok {
-		return
-	}
-	for _, subscriber := range subscribers {
+	r.EmitEventByName(eventName(event), event)
+}
+
+func (r *Registry) EmitEventByName(name string, event Event) {
+	for _, subscriber := range r.events_subscribers[name] {
 		subscriber.callback(r, event)
 	}
 }

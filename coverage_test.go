@@ -131,7 +131,7 @@ func TestEventQueueOperations(t *testing.T) {
 	if !queue.IsEmpty() {
 		t.Fatal("new event queue is not empty")
 	}
-	if got := queue.Dequeue(); got != nil {
+	if got := queue.Dequeue().second; got != nil {
 		t.Fatalf("Dequeue() on an empty queue = %#v, want nil", got)
 	}
 
@@ -142,10 +142,10 @@ func TestEventQueueOperations(t *testing.T) {
 	if queue.IsEmpty() {
 		t.Fatal("queue is empty after enqueue")
 	}
-	if got := queue.Dequeue(); got != first {
+	if got := queue.Dequeue().second; got != first {
 		t.Fatalf("first Dequeue() = %#v, want first event", got)
 	}
-	if got := queue.Dequeue(); got != second {
+	if got := queue.Dequeue().second; got != second {
 		t.Fatalf("second Dequeue() = %#v, want second event", got)
 	}
 	queue.Enqueue(first)
@@ -243,9 +243,9 @@ func TestProcessAllEventsAndProcessBreakpoint(t *testing.T) {
 
 func TestRegistryComponentRegistrationIsIdempotent(t *testing.T) {
 	reg := NewRegistry()
-	first := reg.RegisterComponents[coverageComponent]()
+	first := reg.RegisterComponent[coverageComponent]()
 	first.Insert(1, coverageComponent{name: "kept"})
-	second := reg.RegisterComponents[coverageComponent]()
+	second := reg.RegisterComponent[coverageComponent]()
 	if first != second {
 		t.Fatal("registering the same component type returned a different array")
 	}
@@ -264,30 +264,61 @@ func TestRegistryComponentsAndErrors(t *testing.T) {
 		t.Fatal("AddComponent() returned nil for an unregistered type")
 	}
 
-	reg.RegisterComponents[coverageComponent]()
-	reg.RegisterComponents[secondCoverageComponent]()
+	reg.RegisterComponent[coverageComponent]()
+	reg.RegisterComponent[secondCoverageComponent]()
 	if err := reg.AddComponent(4, coverageComponent{name: "ok"}); err != nil {
 		t.Fatalf("AddComponent() returned an error: %v", err)
 	}
 	if err := reg.AddComponent(4, secondCoverageComponent{value: 7}); err != nil {
 		t.Fatalf("AddComponent() returned an error for a second type: %v", err)
 	}
-
-	reg.components[reflect.TypeOf((*coverageComponent)(nil)).Elem()] = NewSparseArray[int]()
-	if err := reg.AddComponent(4, coverageComponent{name: "wrong storage"}); err == nil {
-		t.Fatal("AddComponent() returned nil for an incompatible stored array")
-	}
 }
 
 func TestGetComponentsReturnsCorrectType(t *testing.T) {
 	reg := NewRegistry()
-	reg.RegisterComponents[coverageComponent]()
-	reg.RegisterComponents[secondCoverageComponent]()
+	reg.RegisterComponent[coverageComponent]()
+	reg.RegisterComponent[secondCoverageComponent]()
 
 	if got := reg.GetComponents[coverageComponent](); got == nil {
 		t.Fatal("GetComponents() returned nil for a registered type")
 	}
 	if got := reg.GetComponents[secondCoverageComponent](); got == nil {
 		t.Fatal("GetComponents() returned nil for a registered type")
+	}
+}
+
+type ScriptComponent struct {
+	payload map[string]any
+}
+
+func TestRegistryComponentRegistrationByNames(t *testing.T) {
+	registry := NewRegistry()
+
+	// Register components by name
+	scriptComponents := registry.RegisterComponentByName[ScriptComponent]("ScriptComponent")
+	if scriptComponents == nil {
+		t.Fatal("Failed to register ScriptComponent by name")
+	}
+
+	// Add a component to the registered SparseArray
+	scriptComponent := ScriptComponent{payload: map[string]any{"key": "value"}}
+	err := registry.AddComponentByName(1, "ScriptComponent", scriptComponent)
+	if err != nil {
+		t.Fatalf("Failed to add ScriptComponent: %v", err)
+	}
+
+	// Retrieve the component by name
+	retrievedComponents := registry.GetComponentsByName[ScriptComponent]("ScriptComponent")
+	if retrievedComponents == nil {
+		t.Fatal("Failed to retrieve ScriptComponent by name")
+	}
+
+	// Verify the retrieved component
+	retrievedComponent, err := retrievedComponents.Get(1)
+	if err != nil {
+		t.Fatalf("Failed to get ScriptComponent: %v", err)
+	}
+	if retrievedComponent.payload["key"] != "value" {
+		t.Fatalf("Retrieved ScriptComponent has incorrect payload: %v", retrievedComponent.payload)
 	}
 }

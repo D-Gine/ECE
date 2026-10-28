@@ -79,6 +79,10 @@ func (r *Registry) EnqueueEvent(event Event) {
 	r.eventQueue.Enqueue(event)
 }
 
+func (r *Registry) EnqueueEventByName(name string, event Event) {
+	r.eventQueue.EnqueueByName(name, event)
+}
+
 func (r *Registry) ProcessManyEvents(n int) {
 	r.eventQueue.ProcessManyEvents(r, n)
 }

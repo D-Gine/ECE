@@ -83,14 +83,14 @@ func (r *Registry) EnqueueEventByName(name string, event Event) {
 	r.eventQueue.EnqueueByName(name, event)
 }
 
-func (r *Registry) ProcessManyEvents(n int) {
-	r.eventQueue.ProcessManyEvents(r, n)
+func (r *Registry) ProcessManyEvents(n int) []Pair[string, Event] {
+	return r.eventQueue.ProcessManyEvents(r, n)
 }
 
-func (r *Registry) ProcessAllEvents() {
-	r.eventQueue.ProcessAllEvents(r)
+func (r *Registry) ProcessAllEvents() []Pair[string, Event] {
+	return r.eventQueue.ProcessAllEvents(r)
 }
 
-func (r *Registry) ProcessEvents() {
-	r.eventQueue.Process(r)
+func (r *Registry) ProcessEvents() []Pair[string, Event] {
+	return r.eventQueue.Process(r)
 }

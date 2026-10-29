@@ -1,8 +1,8 @@
 package ece
 
 type Pair[T string, U any] struct {
-	first  T
-	second U
+	First  T
+	Second U
 }
 
 type EventQueue struct {
@@ -33,8 +33,8 @@ func (eq *EventQueue) Dequeue() Pair[string, Event] {
 }
 
 func (eq *EventQueue) emit(r *Registry, e Pair[string, Event]) {
-	if e.second != nil {
-		r.EmitEventByName(e.first, e.second)
+	if e.Second != nil {
+		r.EmitEventByName(e.First, e.Second)
 	}
 }
 
@@ -52,7 +52,7 @@ func (eq *EventQueue) ProcessManyEvents(r *Registry, n int) []Pair[string, Event
 	for i := 0; i < n && !eq.IsEmpty(); i++ {
 		event := eq.Dequeue()
 		eq.emit(r, event)
-		if _, ok := event.second.(*BreakpointEvent); ok {
+		if _, ok := event.Second.(*BreakpointEvent); ok {
 			processed = append(processed, event)
 			i--
 		}
@@ -65,7 +65,7 @@ func (eq *EventQueue) ProcessAllEvents(r *Registry) []Pair[string, Event] {
 	for !eq.IsEmpty() {
 		e := eq.Dequeue()
 		eq.emit(r, e)
-		if _, ok := e.second.(*BreakpointEvent); !ok {
+		if _, ok := e.Second.(*BreakpointEvent); !ok {
 			processed = append(processed, e)
 		}
 	}
@@ -77,7 +77,7 @@ func (eq *EventQueue) Process(r *Registry) []Pair[string, Event] {
 	for !eq.IsEmpty() {
 		e := eq.Dequeue()
 		eq.emit(r, e)
-		if _, ok := e.second.(*BreakpointEvent); ok {
+		if _, ok := e.Second.(*BreakpointEvent); ok {
 			break
 		} else {
 			processed = append(processed, e)

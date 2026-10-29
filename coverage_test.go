@@ -131,7 +131,7 @@ func TestEventQueueOperations(t *testing.T) {
 	if !queue.IsEmpty() {
 		t.Fatal("new event queue is not empty")
 	}
-	if got := queue.Dequeue().second; got != nil {
+	if got := queue.Dequeue().Second; got != nil {
 		t.Fatalf("Dequeue() on an empty queue = %#v, want nil", got)
 	}
 
@@ -142,10 +142,10 @@ func TestEventQueueOperations(t *testing.T) {
 	if queue.IsEmpty() {
 		t.Fatal("queue is empty after enqueue")
 	}
-	if got := queue.Dequeue().second; got != first {
+	if got := queue.Dequeue().Second; got != first {
 		t.Fatalf("first Dequeue() = %#v, want first event", got)
 	}
-	if got := queue.Dequeue().second; got != second {
+	if got := queue.Dequeue().Second; got != second {
 		t.Fatalf("second Dequeue() = %#v, want second event", got)
 	}
 	queue.Enqueue(first)

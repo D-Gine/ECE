@@ -46,28 +46,42 @@ func (eq *EventQueue) Clear() {
 	eq.events = make([]Pair[string, Event], 0)
 }
 
-func (eq *EventQueue) ProcessManyEvents(r *Registry, n int) {
+func (eq *EventQueue) ProcessManyEvents(r *Registry, n int) []Pair[string, Event] {
+	processed := []Pair[string, Event]{}
+
 	for i := 0; i < n && !eq.IsEmpty(); i++ {
 		event := eq.Dequeue()
 		eq.emit(r, event)
 		if _, ok := event.second.(*BreakpointEvent); ok {
+			processed = append(processed, event)
 			i--
 		}
 	}
+	return processed
 }
 
-func (eq *EventQueue) ProcessAllEvents(r *Registry) {
+func (eq *EventQueue) ProcessAllEvents(r *Registry) []Pair[string, Event] {
+	processed := []Pair[string, Event]{}
 	for !eq.IsEmpty() {
-		eq.emit(r, eq.Dequeue())
+		e := eq.Dequeue()
+		eq.emit(r, e)
+		if _, ok := e.second.(*BreakpointEvent); !ok {
+			processed = append(processed, e)
+		}
 	}
+	return processed
 }
 
-func (eq *EventQueue) Process(r *Registry) {
+func (eq *EventQueue) Process(r *Registry) []Pair[string, Event] {
+	processed := []Pair[string, Event]{}
 	for !eq.IsEmpty() {
 		e := eq.Dequeue()
 		eq.emit(r, e)
 		if _, ok := e.second.(*BreakpointEvent); ok {
 			break
+		} else {
+			processed = append(processed, e)
 		}
 	}
+	return processed
 }

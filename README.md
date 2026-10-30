@@ -22,13 +22,13 @@ any campaign and scenario, with many customisation options.
 Requires **Go 1.27.1** or newer.
 
 ```bash
-go get github.com/<your-org>/<your-repo>
+go get github.com/D-Gine/ECE
 ```
 
 Then import it in your code:
 
 ```go
-import "github.com/<your-org>/<your-repo>"
+import "github.com/D-Gine/ECE"
 ```
 
 > Replace the path above with the real module path of this repository.

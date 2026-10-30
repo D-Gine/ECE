@@ -118,5 +118,5 @@ go test -run Example -v
 | Name | Role | Contact |
 | ---- | ---- | ------- |
 | _Your name_ | Creator / Maintainer | _link or email_ |
-| @sami-hmr | Creator | sami.hamrouni@epitech.eu |
-| @JulesDELTEIL | Creator | jules.delteil@epitech.eu |
+| [@sami-hmr](https://github.com/sami-hmr) | Creator | sami.hamrouni@epitech.eu |
+| [@JulesDELTEIL](https://github.com/JulesDELTEIL) | Creator | jules.delteil@epitech.eu |

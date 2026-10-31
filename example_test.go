@@ -80,9 +80,9 @@ func ExampleSparseArray_Remove() {
 	entity_id := 10
 
 	integers.Insert(entity_id, 67)
-	integers.Remove(entity_id)
+	err := integers.Remove(entity_id)
 
-	_, err := integers.Get(entity_id)
+	_, err = integers.Get(entity_id)
 	fmt.Println(err.Error())
 
 	// Output: value is empty

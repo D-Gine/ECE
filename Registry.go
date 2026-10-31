@@ -94,3 +94,8 @@ func (r *Registry) ProcessAllEvents() []Pair[string, Event] {
 func (r *Registry) ProcessEvents() []Pair[string, Event] {
 	return r.eventQueue.Process(r)
 }
+
+func (r *Registry) GetEventQueue() []Pair[string, Event] {
+	return r.eventQueue.GetQueue()
+
+}

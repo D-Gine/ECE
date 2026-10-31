@@ -85,3 +85,7 @@ func (eq *EventQueue) Process(r *Registry) []Pair[string, Event] {
 	}
 	return processed
 }
+
+func (eq *EventQueue) GetQueue() []Pair[string, Event] {
+	return eq.events
+}

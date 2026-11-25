@@ -322,3 +322,42 @@ func TestRegistryComponentRegistrationByNames(t *testing.T) {
 		t.Fatalf("Retrieved ScriptComponent has incorrect payload: %v", retrievedComponent.payload)
 	}
 }
+
+func TestEventQueueGetQueue(t *testing.T) {
+	queue := NewEventQueue()
+
+	if got := queue.GetQueue(); len(got) != 0 {
+		t.Fatalf("GetQueue() on a new queue = %v, want empty", got)
+	}
+
+	first := &coverageEvent{value: "first"}
+	second := &coverageEvent{value: "second"}
+	queue.Enqueue(first)
+	queue.EnqueueByName("custom-event", second)
+
+	got := queue.GetQueue()
+	want := []Pair[string, Event]{
+		{First: eventName(first), Second: first},
+		{First: "custom-event", Second: second},
+	}
+	if !reflect.DeepEqual(got, want) {
+		t.Fatalf("GetQueue() = %#v, want %#v", got, want)
+	}
+}
+
+func TestRegistryGetEventQueue(t *testing.T) {
+	reg := NewRegistry()
+	first := &coverageEvent{value: "one"}
+	second := BreakpointEvent{}
+	reg.EnqueueEvent(first)
+	reg.EnqueueEvent(second)
+
+	got := reg.GetEventQueue()
+	want := []Pair[string, Event]{
+		{First: eventName(first), Second: first},
+		{First: eventName(second), Second: second},
+	}
+	if !reflect.DeepEqual(got, want) {
+		t.Fatalf("GetEventQueue() = %#v, want %#v", got, want)
+	}
+}

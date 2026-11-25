@@ -52,7 +52,7 @@ func (eq *EventQueue) ProcessManyEvents(r *Registry, n int) []Pair[string, Event
 	for i := 0; i < n && !eq.IsEmpty(); i++ {
 		event := eq.Dequeue()
 		eq.emit(r, event)
-		if _, ok := event.Second.(*BreakpointEvent); ok {
+		if _, ok := event.Second.(BreakpointEvent); ok {
 			processed = append(processed, event)
 			i--
 		}
@@ -65,7 +65,7 @@ func (eq *EventQueue) ProcessAllEvents(r *Registry) []Pair[string, Event] {
 	for !eq.IsEmpty() {
 		e := eq.Dequeue()
 		eq.emit(r, e)
-		if _, ok := e.Second.(*BreakpointEvent); !ok {
+		if _, ok := e.Second.(BreakpointEvent); !ok {
 			processed = append(processed, e)
 		}
 	}
@@ -77,11 +77,15 @@ func (eq *EventQueue) Process(r *Registry) []Pair[string, Event] {
 	for !eq.IsEmpty() {
 		e := eq.Dequeue()
 		eq.emit(r, e)
-		if _, ok := e.Second.(*BreakpointEvent); ok {
+		if _, ok := e.Second.(BreakpointEvent); ok {
 			break
 		} else {
 			processed = append(processed, e)
 		}
 	}
 	return processed
+}
+
+func (eq *EventQueue) GetQueue() []Pair[string, Event] {
+	return eq.events
 }

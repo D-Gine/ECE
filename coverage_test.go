@@ -186,7 +186,7 @@ func TestEmitEventIgnoresUnsubscribedTypes(t *testing.T) {
 		return nil
 	}, 0)
 
-	reg.EmitEvent(&BreakpointEvent{})
+	reg.EmitEvent(BreakpointEvent{})
 	if called {
 		t.Error("subscriber for another event type was called")
 	}
@@ -199,12 +199,12 @@ func TestProcessManyEventsHonorsBreakpointWithoutCountingIt(t *testing.T) {
 		processed = append(processed, "event:"+event.value)
 		return nil
 	}, 0)
-	reg.SubscribeToEvent(func(*Registry, *BreakpointEvent) any {
+	reg.SubscribeToEvent(func(*Registry, BreakpointEvent) any {
 		processed = append(processed, "breakpoint")
 		return nil
 	}, 0)
 
-	reg.EnqueueEvent(&BreakpointEvent{})
+	reg.EnqueueEvent(BreakpointEvent{})
 	reg.EnqueueEvent(&coverageEvent{value: "one"})
 	reg.EnqueueEvent(&coverageEvent{value: "two"})
 	reg.EnqueueEvent(&coverageEvent{value: "three"})
@@ -222,13 +222,13 @@ func TestProcessAllEventsAndProcessBreakpoint(t *testing.T) {
 		processed = append(processed, "event")
 		return nil
 	}, 0)
-	reg.SubscribeToEvent(func(*Registry, *BreakpointEvent) any {
+	reg.SubscribeToEvent(func(*Registry, BreakpointEvent) any {
 		processed = append(processed, "breakpoint")
 		return nil
 	}, 0)
 
 	reg.EnqueueEvent(&coverageEvent{})
-	reg.EnqueueEvent(&BreakpointEvent{})
+	reg.EnqueueEvent(BreakpointEvent{})
 	reg.EnqueueEvent(&coverageEvent{})
 	reg.ProcessEvents()
 	if want := []string{"event", "breakpoint"}; !reflect.DeepEqual(processed, want) {

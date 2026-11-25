@@ -97,5 +97,4 @@ func (r *Registry) ProcessEvents() []Pair[string, Event] {
 
 func (r *Registry) GetEventQueue() []Pair[string, Event] {
 	return r.eventQueue.GetQueue()
-
 }
